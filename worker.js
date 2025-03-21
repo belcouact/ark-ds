@@ -7,7 +7,7 @@ const OPENAI_API_KEY = '3654c0c8-acfd-469e-a1a4-eca3a9a95a5e'; // Replace with y
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
-  'https://your-cloudflare-pages-url.pages.dev', // Replace with your Cloudflare Pages URL
+  'https://work-hard.pages.dev', // Replace with your Cloudflare Pages URL
   'http://localhost:8787' // For local development
 ];
 
