@@ -64,7 +64,7 @@ function handleGET(request) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer your-api-key'
+          'Authorization': 'Bearer 3654c0c8-acfd-469e-a1a4-eca3a9a95a5e'
         },
         body: {
           messages: [
