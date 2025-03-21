@@ -3,7 +3,6 @@
 // Define the configuration
 const BOT_ID = 'bot-20250301110252-phnr8';
 const SYSTEM_PROMPT = '#角色名称：智慧教师';
-const OPENAI_API_KEY = '3654c0c8-acfd-469e-a1a4-eca3a9a95a5e'; // Replace with your actual OpenAI API key
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
@@ -37,9 +36,8 @@ function validateAPIKey(request) {
   const authHeader = request.headers.get('Authorization') || '';
   const providedKey = authHeader.replace('Bearer ', '');
   
-  // Check if the API key matches the expected key
-  // In a production environment, you would use a more secure method
-  if (providedKey !== '3654c0c8-acfd-469e-a1a4-eca3a9a95a5e') {
+  // Check if the API key matches the expected key from environment variable
+  if (providedKey !== CLIENT_API_KEY) {
     return new Response(JSON.stringify({ error: 'Invalid API key' }), {
       status: 401,
       headers: {
