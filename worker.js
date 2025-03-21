@@ -4,16 +4,13 @@
 const BOT_ID = 'bot-20250301110252-phnr8';
 const SYSTEM_PROMPT = '#角色名称：智慧教师';
 
-// Allowed origins for CORS
-const ALLOWED_ORIGINS = [
-  'https://work-hard.pages.dev', // Replace with your Cloudflare Pages URL
-  'http://localhost:8787' // For local development
-];
+// Allowed origins for CORS - temporarily allow all origins for development
+const ALLOWED_ORIGINS = ['*'];
 
 // Helper to handle CORS preflight requests
 function handleCORS(request) {
   const origin = request.headers.get('Origin');
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const allowedOrigin = origin || '*';
   
   // Handle OPTIONS request
   if (request.method === 'OPTIONS') {
@@ -22,7 +19,7 @@ function handleCORS(request) {
       headers: {
         'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
         'Access-Control-Max-Age': '86400'
       }
     });
@@ -38,10 +35,14 @@ function validateAPIKey(request) {
   
   // Check if the API key matches the expected key from environment variable
   if (providedKey !== CLIENT_API_KEY) {
-    return new Response(JSON.stringify({ error: 'Invalid API key' }), {
+    return new Response(JSON.stringify({ 
+      error: 'Invalid API key',
+      message: 'Please provide a valid API key in the Authorization header'
+    }), {
       status: 401,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       }
     });
   }
@@ -58,44 +59,63 @@ function handleGET(request) {
     return new Response(JSON.stringify({
       message: 'Welcome to the ARK DS API',
       status: 'running',
-      documentation: 'This API accepts POST requests with an Authorization header containing a Bearer token.'
+      documentation: 'This API accepts POST requests with an Authorization header containing a Bearer token.',
+      example: {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer your-api-key'
+        },
+        body: {
+          messages: [
+            { role: 'user', content: 'Hello!' }
+          ],
+          temperature: 0.7,
+          max_tokens: 2000
+        }
+      }
     }), {
       status: 200,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       }
     });
   }
   
   // For any other GET request, return 404
-  return new Response(JSON.stringify({ error: 'Not Found' }), {
+  return new Response(JSON.stringify({ 
+    error: 'Not Found',
+    message: 'This endpoint only accepts POST requests'
+  }), {
     status: 404,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
     }
   });
 }
 
 // Main event handler for the worker
 async function handleRequest(request) {
-  // Handle CORS
-  const corsResponse = handleCORS(request);
-  if (corsResponse) return corsResponse;
-  
-  // Get origin for CORS header
-  const origin = request.headers.get('Origin');
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
-  
-  // Handle GET requests
-  if (request.method === 'GET') {
-    return handleGET(request);
-  }
-  
-  // For POST requests, validate the API key
-  const authResponse = validateAPIKey(request);
-  if (authResponse) return authResponse;
-  
   try {
+    // Handle CORS
+    const corsResponse = handleCORS(request);
+    if (corsResponse) return corsResponse;
+    
+    // Get origin for CORS header
+    const origin = request.headers.get('Origin');
+    const allowedOrigin = origin || '*';
+    
+    // Handle GET requests
+    if (request.method === 'GET') {
+      return handleGET(request);
+    }
+    
+    // For POST requests, validate the API key
+    const authResponse = validateAPIKey(request);
+    if (authResponse) return authResponse;
+    
     // Parse the request body
     const requestData = await request.json();
     
@@ -134,7 +154,11 @@ async function handleRequest(request) {
     // Check if OpenAI response is OK
     if (!openaiResponse.ok) {
       const errorData = await openaiResponse.json();
-      return new Response(JSON.stringify({ error: 'OpenAI API error', details: errorData }), {
+      return new Response(JSON.stringify({ 
+        error: 'OpenAI API error', 
+        details: errorData,
+        message: 'Failed to get response from OpenAI API'
+      }), {
         status: openaiResponse.status,
         headers: {
           'Content-Type': 'application/json',
@@ -162,11 +186,15 @@ async function handleRequest(request) {
     
   } catch (error) {
     // Handle any errors
-    return new Response(JSON.stringify({ error: `Worker error: ${error.message}` }), {
+    return new Response(JSON.stringify({ 
+      error: 'Worker error',
+      message: error.message,
+      details: error.stack
+    }), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': allowedOrigin
+        'Access-Control-Allow-Origin': '*'
       }
     });
   }
