@@ -1,16 +1,16 @@
-name = "study-assist-api"
+name = "ark-ds"
 main = "worker.js"
 compatibility_date = "2023-01-01"
 
 # Configure environment variables
 [vars]
-OPENAI_API_KEY = "YOUR_OPENAI_API_KEY" # Replace with your actual OpenAI API key
+OPENAI_API_KEY = "3654c0c8-acfd-469e-a1a4-eca3a9a95a5e" # Replace with your actual OpenAI API key
 
 # Specify route to Cloudflare Worker
 # routes = ["https://your-worker-subdomain.yourdomain.com/*"]
 
 # Specify route to Worker at your Cloudflare Pages custom domain
-# routes = ["https://your-pages-project.pages.dev/api/*"]
+# routes = ["https://study-hard.pages.dev/api/*"]
 
 # Or, just use the workers.dev subdomain during development:
 workers_dev = true 
