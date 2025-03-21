@@ -49,6 +49,33 @@ function validateAPIKey(request) {
   return null;
 }
 
+// Helper to handle GET requests
+function handleGET(request) {
+  const url = new URL(request.url);
+  
+  // If it's the root path, return a helpful message
+  if (url.pathname === '/') {
+    return new Response(JSON.stringify({
+      message: 'Welcome to the ARK DS API',
+      status: 'running',
+      documentation: 'This API accepts POST requests with an Authorization header containing a Bearer token.'
+    }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  }
+  
+  // For any other GET request, return 404
+  return new Response(JSON.stringify({ error: 'Not Found' }), {
+    status: 404,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+}
+
 // Main event handler for the worker
 async function handleRequest(request) {
   // Handle CORS
@@ -59,22 +86,16 @@ async function handleRequest(request) {
   const origin = request.headers.get('Origin');
   const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   
-  // Validate the API key
+  // Handle GET requests
+  if (request.method === 'GET') {
+    return handleGET(request);
+  }
+  
+  // For POST requests, validate the API key
   const authResponse = validateAPIKey(request);
   if (authResponse) return authResponse;
   
   try {
-    // Only handle POST requests
-    if (request.method !== 'POST') {
-      return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-        status: 405,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': allowedOrigin
-        }
-      });
-    }
-    
     // Parse the request body
     const requestData = await request.json();
     
