@@ -98,7 +98,7 @@ async function handleRequest(request) {
     }
     
     // Make the request to OpenAI API
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const openaiResponse = await fetch('https://ark.cn-beijing.volces.com/api/v3/bots', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
