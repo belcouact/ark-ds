@@ -6,7 +6,7 @@ compatibility_date = "2024-03-21"
 [vars]
 # These are example values - replace with your actual keys
 CLIENT_API_KEY = "3654c0c8-acfd-469e-a1a4-eca3a9a95a5e"
-OPENAI_API_KEY = "your-openai-api-key"
+OPENAI_API_KEY = "3654c0c8-acfd-469e-a1a4-eca3a9a95a5e"
 
 # Specify route to Cloudflare Worker
 # routes = ["https://your-worker-subdomain.yourdomain.com/*"]
