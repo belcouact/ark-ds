@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare Worker Tests</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f6fa;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        #output {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #2980b9;
+        }
+        .success {
+            color: #27ae60;
+        }
+        .error {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cloudflare Worker Tests</h1>
+        <button onclick="runTests()">Run Tests</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const API_KEY = '3654c0c8-acfd-469e-a1a4-eca3a9a95a5e';
+        const WORKER_URL = 'https://ark-ds.5525899.workers.dev';
+
+        async function testWorker() {
+            const output = document.getElementById('output');
+            output.textContent = 'Testing Cloudflare Worker...\n\n';
+
+            // Test 1: GET request to root endpoint
+            output.textContent += 'Test 1: Testing GET request to root endpoint\n';
+            try {
+                const getResponse = await fetch(WORKER_URL);
+                const getData = await getResponse.json();
+                output.textContent += `GET Response: ${JSON.stringify(getData, null, 2)}\n`;
+                output.textContent += `GET Status: ${getResponse.status}\n`;
+                output.textContent += `GET Test: ${getResponse.ok ? '✅ PASSED' : '❌ FAILED'}\n\n`;
+            } catch (error) {
+                output.textContent += `GET Test: ❌ FAILED\nError: ${error.message}\n\n`;
+            }
+
+            // Test 2: POST request without API key
+            output.textContent += 'Test 2: Testing POST request without API key\n';
+            try {
+                const noKeyResponse = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messages: [{ role: 'user', content: 'Hello!' }]
+                    })
+                });
+                const noKeyData = await noKeyResponse.json();
+                output.textContent += `No Key Response: ${JSON.stringify(noKeyData, null, 2)}\n`;
+                output.textContent += `No Key Status: ${noKeyResponse.status}\n`;
+                output.textContent += `No Key Test: ${noKeyResponse.status === 401 ? '✅ PASSED' : '❌ FAILED'}\n\n`;
+            } catch (error) {
+                output.textContent += `No Key Test: ❌ FAILED\nError: ${error.message}\n\n`;
+            }
+
+            // Test 3: POST request with API key
+            output.textContent += 'Test 3: Testing POST request with API key\n';
+            try {
+                const postResponse = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        messages: [{ role: 'user', content: 'Hello!' }],
+                        temperature: 0.7,
+                        max_tokens: 2000
+                    })
+                });
+                const postData = await postResponse.json();
+                output.textContent += `POST Response: ${JSON.stringify(postData, null, 2)}\n`;
+                output.textContent += `POST Status: ${postResponse.status}\n`;
+                output.textContent += `POST Test: ${postResponse.ok ? '✅ PASSED' : '❌ FAILED'}\n\n`;
+            } catch (error) {
+                output.textContent += `POST Test: ❌ FAILED\nError: ${error.message}\n\n`;
+            }
+        }
+
+        function runTests() {
+            const output = document.getElementById('output');
+            output.textContent = 'Running tests...\n';
+            testWorker();
+        }
+    </script>
+</body>
+</html> 
