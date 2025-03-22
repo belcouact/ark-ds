@@ -1,8 +1,10 @@
-// Cloudflare Worker to proxy requests to OpenAI API
+// Cloudflare Worker to proxy requests to DeepSeek API
 
 // Define the configuration
-const BOT_ID = 'bot-20250301110252-phnr8';
-const SYSTEM_PROMPT = '#角色名称：智慧教师';
+const API_BASE_URL = 'https://api.deepseek.com';
+const API_KEY = 'sk-db4f7c2e3c99454da5a799b92a0c9f9c';
+const MODEL = 'deepseek-chat';
+const SYSTEM_PROMPT = '';
 
 // Allowed origins for CORS - temporarily allow all origins for development
 const ALLOWED_ORIGINS = ['*'];
@@ -136,30 +138,33 @@ async function handleRequest(request) {
       messages = [{ role: 'system', content: SYSTEM_PROMPT }, ...messages];
     }
     
-    // Make the request to OpenAI API
-    const openaiResponse = await fetch('https://ark.cn-beijing.volces.com/api/v3/bots', {
+    // Make the request to DeepSeek API
+    const apiResponse = await fetch(`${API_BASE_URL}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`
+        'Authorization': `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
-        model: BOT_ID,
+        model: MODEL,
         messages: messages,
         temperature: requestData.temperature || 0.7,
         max_tokens: requestData.max_tokens || 2000
       })
     });
     
-    // Check if OpenAI response is OK
-    if (!openaiResponse.ok) {
-      const errorData = await openaiResponse.json();
+    // Check if API response is OK
+    if (!apiResponse.ok) {
+      const errorData = await apiResponse.json();
+      console.error('API Error:', errorData); // Add logging
       return new Response(JSON.stringify({ 
-        error: 'OpenAI API error', 
+        error: 'API error', 
         details: errorData,
-        message: 'Failed to get response from OpenAI API'
+        message: 'Failed to get response from API',
+        status: apiResponse.status,
+        url: `${API_BASE_URL}/v1/chat/completions`
       }), {
-        status: openaiResponse.status,
+        status: apiResponse.status,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': allowedOrigin
@@ -167,8 +172,8 @@ async function handleRequest(request) {
       });
     }
     
-    // Return the OpenAI response
-    const responseData = await openaiResponse.json();
+    // Return the API response
+    const responseData = await apiResponse.json();
     
     return new Response(JSON.stringify({
       choices: [{
@@ -186,6 +191,7 @@ async function handleRequest(request) {
     
   } catch (error) {
     // Handle any errors
+    console.error('Worker Error:', error); // Add logging
     return new Response(JSON.stringify({ 
       error: 'Worker error',
       message: error.message,

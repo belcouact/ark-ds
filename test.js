@@ -1,4 +1,4 @@
-const API_KEY = '3654c0c8-acfd-469e-a1a4-eca3a9a95a5e';
+const API_KEY = 'sk-db4f7c2e3c99454da5a799b92a0c9f9c';
 const WORKER_URL = 'https://ark-ds.5525899.workers.dev';
 
 async function testWorker() {
