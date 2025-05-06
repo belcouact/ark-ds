@@ -3,6 +3,7 @@ main = "worker.js"
 compatibility_date = "2024-03-21"
 
 # Production environment variables
+# 
 # Set these in Cloudflare Dashboard or using wrangler secrets
 # Required environment variables:
 # - CLIENT_API_KEY
