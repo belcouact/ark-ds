@@ -1,9 +1,9 @@
 // Cloudflare Worker to proxy requests to DeepSeek API
 
-// Define the configuration
-const API_BASE_URL = env.API_BASE_URL || 'https://api.deepseek.com';
-const API_KEY = env.CLIENT_API_KEY;
-const MODEL = env.MODEL || 'deepseek-chat';
+// Configuration will be set in handleRequest with env parameter
+let API_BASE_URL;
+let API_KEY;
+let MODEL;
 const SYSTEM_PROMPT = '';
 
 // Allowed origins for CORS - temporarily allow all origins for development
@@ -79,6 +79,11 @@ function handleGET(request) {
 // Main event handler for the worker
 async function handleRequest(request, env) {
   try {
+    // Initialize configuration with environment variables
+    API_BASE_URL = env.API_BASE_URL || 'https://api.deepseek.com';
+    API_KEY = env.CLIENT_API_KEY;
+    MODEL = env.MODEL || 'deepseek-chat';
+
     // Handle CORS
     const corsResponse = handleCORS(request);
     if (corsResponse) return corsResponse;
