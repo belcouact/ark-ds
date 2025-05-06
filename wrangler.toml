@@ -9,8 +9,4 @@ compatibility_date = "2024-03-21"
 # - API_BASE_URL
 # - MODEL
 
-# Specify route to Worker at your Cloudflare Pages custom domain
-# routes = ["https://study-hard.pages.dev/api/*"]
-
-# Or, just use the workers.dev subdomain during development:
 workers_dev = true 
