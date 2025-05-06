@@ -1,9 +1,9 @@
 // Cloudflare Worker to proxy requests to DeepSeek API
 
 // Define the configuration
-const API_BASE_URL = 'https://api.deepseek.com';
-const API_KEY = 'sk-db4f7c2e3c99454da5a799b92a0c9f9c';
-const MODEL = 'deepseek-chat';
+const API_BASE_URL = API_BASE_URL || 'https://api.deepseek.com';
+const API_KEY = CLIENT_API_KEY;
+const MODEL = MODEL;
 const SYSTEM_PROMPT = '';
 
 // Allowed origins for CORS - temporarily allow all origins for development
