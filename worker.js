@@ -1,9 +1,9 @@
 // Cloudflare Worker to proxy requests to DeepSeek API
 
-// Configuration will be set in handleRequest with env parameter
-let API_BASE_URL;
-let API_KEY;
-let MODEL;
+// Define the configuration
+const API_BASE_URL = 'https://api.deepseek.com';
+const API_KEY = 'sk-db4f7c2e3c99454da5a799b92a0c9f9c';
+const MODEL = 'deepseek-chat';
 const SYSTEM_PROMPT = '';
 
 // Allowed origins for CORS - temporarily allow all origins for development
@@ -23,6 +23,28 @@ function handleCORS(request) {
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
         'Access-Control-Max-Age': '86400'
+      }
+    });
+  }
+  
+  return null;
+}
+
+// Helper to validate the API key in the request
+function validateAPIKey(request) {
+  const authHeader = request.headers.get('Authorization') || '';
+  const providedKey = authHeader.replace('Bearer ', '');
+  
+  // Check if the API key matches the expected key from environment variable
+  if (providedKey !== CLIENT_API_KEY) {
+    return new Response(JSON.stringify({ 
+      error: 'Invalid API key',
+      message: 'Please provide a valid API key in the Authorization header'
+    }), {
+      status: 401,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       }
     });
   }
@@ -77,13 +99,8 @@ function handleGET(request) {
 }
 
 // Main event handler for the worker
-async function handleRequest(request, env) {
+async function handleRequest(request) {
   try {
-    // Initialize configuration with environment variables
-    API_BASE_URL = env.API_BASE_URL || 'https://api.deepseek.com';
-    API_KEY = env.CLIENT_API_KEY;
-    MODEL = env.MODEL || 'deepseek-chat';
-
     // Handle CORS
     const corsResponse = handleCORS(request);
     if (corsResponse) return corsResponse;
@@ -98,22 +115,8 @@ async function handleRequest(request, env) {
     }
     
     // For POST requests, validate the API key
-    const authHeader = request.headers.get('Authorization') || '';
-    const providedKey = authHeader.replace('Bearer ', '');
-    
-    // Check if the API key matches the expected key from environment variable
-    if (providedKey !== env.CLIENT_API_KEY) {
-      return new Response(JSON.stringify({ 
-        error: 'Invalid API key',
-        message: 'Please provide a valid API key in the Authorization header'
-      }), {
-        status: 401,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
-    }
+    const authResponse = validateAPIKey(request);
+    if (authResponse) return authResponse;
     
     // Parse the request body
     const requestData = await request.json();
@@ -205,5 +208,5 @@ async function handleRequest(request, env) {
 
 // Register the worker event listener
 addEventListener('fetch', event => {
-  event.respondWith(handleRequest(event.request, event.env));
+  event.respondWith(handleRequest(event.request));
 }); 

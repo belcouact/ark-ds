@@ -2,13 +2,17 @@ name = "ark-ds"
 main = "worker.js"
 compatibility_date = "2024-03-21"
 
-# Production environment variables
-# 
-# Set these in Cloudflare Dashboard or using wrangler secrets
-# Required environment variables:
-# - CLIENT_API_KEY
-# - API_BASE_URL
-# - MODEL
+# Configure environment variables
+[vars]
+# These are example values - replace with your actual keys
+CLIENT_API_KEY = "sk-db4f7c2e3c99454da5a799b92a0c9f9c"
+OPENAI_API_KEY = "sk-db4f7c2e3c99454da5a799b92a0c9f9c"
 
+# Specify route to Cloudflare Worker
+# routes = ["https://your-worker-subdomain.yourdomain.com/*"]
 
+# Specify route to Worker at your Cloudflare Pages custom domain
+# routes = ["https://study-hard.pages.dev/api/*"]
+
+# Or, just use the workers.dev subdomain during development:
 workers_dev = true 
